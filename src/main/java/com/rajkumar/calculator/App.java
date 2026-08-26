@@ -16,7 +16,7 @@ public class App {
         double balanceAmount;
         final String USER_NAME;
         int tenure;
-        //double[] emipayments = new double[tenure];
+        double[] emipayments;
         double emi;
         boolean isAllValuesAreNonNegative;
         boolean hasHighIncome = false;
@@ -25,6 +25,7 @@ public class App {
         int creditScore;
         int income;
         boolean isEligible;
+        int count = 0;
         Scanner scanner = new Scanner(System.in);
         System.out.print("Please enter your name :");
         USER_NAME = scanner.next();
@@ -38,6 +39,8 @@ public class App {
             if (creditScore > 0) {
                 hasGoodCredit = (creditScore >= 600);
 
+
+
                 System.out.print("Has any criminal record :");
                 hasCriminalRecord = scanner.nextBoolean();
                 isEligible = (!hasCriminalRecord && (hasGoodCredit || hasHighIncome));
@@ -48,6 +51,24 @@ public class App {
 
                     System.out.print("Annual Rate of interest :");
                     rate = scanner.nextFloat();
+                    int categeory = creditScore/50;
+                    switch (categeory){
+                        case (15) :
+                            System.out.println("Excellent credit score ");
+                            break;
+                        case 14 :
+                            System.out.println("Good credit score ");
+                            break;
+                        case 13 :
+                            System.out.println("Average credit score");
+                            break;
+                        case 12:
+                            System.out.println("needs to improve creditor ");
+                            break;
+                        default:
+                            System.out.println("Poor credit score ");
+
+                    }
                     rate = (float) rate / 1200;
 
                     System.out.print("Enter the Tenure in months :");
@@ -56,7 +77,7 @@ public class App {
                     System.out.print("Enter disbursement date (yyyy-MM-dd): ");
                     String date = scanner.next();
                     LocalDate disburseDate = LocalDate.parse(date);
-                    scanner.close();
+
 
                     LocalDate today = LocalDate.now();
                     duration = ChronoUnit.DAYS.between(disburseDate, today);
@@ -71,10 +92,44 @@ public class App {
 
                             balanceAmount = principle * Math.pow(1 + rate, elapsedMonths) - emi * (Math.pow(1 + rate, elapsedMonths) - 1) / rate;
                             System.out.println();
-                            System.out.println(USER_NAME.concat(" ") + "Your total balanceAmount to be paid is "
-                                    + NumberFormat.getCurrencyInstance().format(balanceAmount)
-                                    + "\nEMI's pending " + pendingEmis
-                                    + "\nYour monthly emi is " + NumberFormat.getCurrencyInstance().format(emi));
+                            emipayments = new double[tenure];
+
+                            for (int i = 0;i<elapsedMonths;i++){
+                                emipayments[i] =emi;
+                                count++;
+                            }
+                            int choice = 0;
+                            while (choice!=4){
+                                System.out.println("\nMortgage Calculator");
+                                System.out.println("1. Calculate EMI");
+                                System.out.println("2. Pending EMI's");
+                                System.out.println("3. Show Balance");
+                                System.out.println("4. Exit");
+
+                                System.out.print("Choose an option: ");
+                                choice = scanner.nextInt();
+
+                                switch (choice){
+                                    case 1 :
+                                        System.out.print("\nYour monthly emi is " + NumberFormat.getCurrencyInstance().format(emi));
+                                        break;
+                                    case 2 :
+                                        System.out.print("\nEMI's pending " + pendingEmis);
+                                        break;
+                                    case 3 :
+                                        System.out.print("Your total balanceAmount to be paid is "
+                                                + NumberFormat.getCurrencyInstance().format(balanceAmount));
+                                        break;
+                                    case 4 :
+                                        System.out.print("Exiting ");
+                                        break;
+                                    default:
+                                        System.out.println("Invalid input");
+                                }
+                            }
+                            scanner.close();
+                            System.out.println();
+                            System.out.println(USER_NAME.concat(" ") + "You have paid till now "+count+"emi's");
                         }else
                             System.out.println("Your loan is completed");
                     } else
