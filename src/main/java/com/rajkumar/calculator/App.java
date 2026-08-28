@@ -1,50 +1,43 @@
 package com.rajkumar.calculator;
 
-import javax.swing.*;
-import javax.swing.text.NumberFormatter;
 import java.text.NumberFormat;
 import java.time.LocalDate;
 import java.time.temporal.ChronoUnit;
-import java.util.Date;
 import java.util.Scanner;
 
 public class App {
 
 
     public static void main(String[] args) {
-        int principle;
-        float rate;
-        final String USER_NAME;
-        int tenure;
-        int creditScore;
-        int income;
-        boolean isEligible;
-        String criminalRecord;
-        int choice;
 
-        USER_NAME = readStrings("Please enter your name :");
-        income = (int) readNumber("Enter your income :", 1000, 1000000);
-        principle = (int) readNumber("Principle : ", 1000, 10_00_00_000);
-        rate = (float) readNumber("Annual Rate of interest :", 0, 30);
-        tenure = (int) readNumber("Enter the Tenure in months :", 1, 100);
-        creditScore = (int) readNumber("Enter credit score :", 500, 800);
-        criminalRecord = readStrings("Has any criminal record : ");
+        final String USER_NAME = readStrings("Please enter your name :");
+        String criminalRecord = readStrings("Has any criminal record : ");
+        int income = (int) readNumber("Enter your income :", 1000, 1000000);
+        int creditScore = (int) readNumber("Enter credit score :", 500, 800);
+        boolean isEligible = !criminalRecord.equalsIgnoreCase("yes")
+                && (income > 100000 || creditScore > 600);
+        if (isEligible)
+            hasEligible();
+        else
+            System.out.println(USER_NAME + " You are not eligible \nThank you \nBetter luck next time ");
+
+        typeOfCustomer(creditScore);
+    }
+
+    public static void hasEligible() {
+        int principle = (int) readNumber("Principle : ", 1000, 10_00_00_000);
+        float rate = (float) readNumber("Annual Rate of interest :", 0, 30);
+        int tenure = (int) readNumber("Enter the Tenure in months :", 1, 100);
         String date = readStrings("Enter disbursement date (yyyy-MM-dd): ");
-        choice = (int) readNumber("""
+        int choice = (int) readNumber("""
                 Mortgage Calculator
                 1. Calculate EMI\s
                 2. Pending EMI's
                 3. Show Balance\s
                 4. Exit
                 """, 1, 4);
-        isEligible = !criminalRecord.equalsIgnoreCase("yes")
-                && (income > 100000 || creditScore > 600);
-        if (isEligible)
-            result(choice, principle, rate, tenure, date);
-        else
-            System.out.println(USER_NAME + "You are not eligible \nThank you \n Better luck next time ");
 
-        typeOfCustomer(creditScore);
+        result(choice, principle, rate, tenure, date);
     }
 
     public static void typeOfCustomer(int creditScore) {
@@ -114,7 +107,10 @@ public class App {
                 System.out.print("\nYour monthly emi is " + NumberFormat.getCurrencyInstance().format(emi));
                 break;
             case 2:
-                System.out.print("\nEMI's pending " + pendingEmis);
+                if (pendingEmis > 0) {
+                    System.out.print("\nEMI's pending " + pendingEmis);
+                } else
+                    System.out.println("Your loan is completed \nThanks ");
                 break;
             case 3:
                 System.out.print("Your total balanceAmount to be paid is "
