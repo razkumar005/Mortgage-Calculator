@@ -6,6 +6,8 @@ import java.time.temporal.ChronoUnit;
 import java.util.Scanner;
 
 public class App {
+    final static byte MONTHS_IN_YEAR = 12;
+    final static byte PERCENT =100;
 
 
     public static void main(String[] args) {
@@ -21,12 +23,14 @@ public class App {
         else
             System.out.println(USER_NAME + " You are not eligible \nThank you \nBetter luck next time ");
 
+
         typeOfCustomer(creditScore);
     }
 
     public static void hasEligible() {
         int principle = (int) readNumber("Principle : ", 1000, 10_00_00_000);
         float rate = (float) readNumber("Annual Rate of interest :", 0, 30);
+        rate = rate/MONTHS_IN_YEAR/PERCENT;
         int tenure = (int) readNumber("Enter the Tenure in months :", 1, 100);
         String date = readStrings("Enter disbursement date (yyyy-MM-dd): ");
         int choice = (int) readNumber("""
@@ -34,7 +38,7 @@ public class App {
                 1. Calculate EMI\s
                 2. Pending EMI's
                 3. Show Balance\s
-                4. Exit
+                4. Payment Schedule
                 """, 1, 4);
 
         result(choice, principle, rate, tenure, date);
@@ -62,7 +66,7 @@ public class App {
     }
 
     public static double calculateMortgage(int principle, float rate, int tenure) {
-        rate = rate / 1200;
+
         double emi = principle * rate * Math.pow(1 + rate, tenure) / (Math.pow(1 + rate, tenure) - 1);
         emi = Math.round(emi * 100.0) / 100.0;
         return emi;
@@ -117,7 +121,7 @@ public class App {
                         + NumberFormat.getCurrencyInstance().format(calculateBalanceAmount(principle, months, rate, emi)));
                 break;
             case 4:
-                System.out.print("Exiting ");
+                paymentSchedule(principle,rate,tenure,date);
                 break;
             default:
                 System.out.println("Invalid input");
@@ -127,6 +131,46 @@ public class App {
     public static double calculateBalanceAmount(int principle, long paidMonths, float rate, double emi) {
         return principle * Math.pow(1 + rate, paidMonths) - emi * (Math.pow(1 + rate, paidMonths) - 1) / rate;
 
+    }
+    public static void paymentSchedule(int principle,float rate,int tenure,String date){
+        double emi = calculateMortgage(principle,rate,tenure);
+        double balance = principle;
+        LocalDate paymentDate = LocalDate.parse(date);
+        System.out.println("\n Payment schedule ");
+        System.out.println("------------------------------");
+        System.out.printf(
+                "%-8s %-12s %-12s %-14s %-12s %-15s%n",
+                "Payment",
+                "Date",
+                "EMI",
+                "Principal",
+                "Interest",
+                "Balance"
+        );
+        System.out.println("-".repeat(75));
+        for (int month = 1 ;month<=tenure;month++){
+            double interest = balance*rate;
+            double principlePaid = emi-interest;
+            balance = balance-principlePaid;
+            if (balance<0)
+                balance = 0;
+            paymentDate = paymentDate.plusMonths(1);
+
+            System.out.printf(
+                    "%-8d %-12s ₹%-10.2f ₹%-10.2f ₹%-10.2f ₹%.2f%n",
+                    month,
+                    paymentDate,
+                    emi,
+                    principlePaid,
+                    interest,
+                    balance
+            );
+
+            if (balance <= 0) {
+                break;
+            }
+
+        }
     }
 
     public static long elapsedMonths(String date) {
